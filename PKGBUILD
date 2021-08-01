@@ -21,7 +21,7 @@ pkgver() {
 package() {
 	cd "$srcdir/$_pkgname"
 	install -Dm755 $_pkgname.sh "$pkgdir/usr/bin/$_pkgname"
-	install -Dm755 $_pkgname.conf "$pkgdir/etc/conf.d/$_pkgname"
+	install -Dm644 $_pkgname.conf "$pkgdir/etc/conf.d/$_pkgname"
 	install -Dm644 $_pkgname@.timer "$pkgdir/usr/lib/systemd/system/$_pkgname@.timer"
 	install -Dm644 $_pkgname@.service "$pkgdir/usr/lib/systemd/system/$_pkgname@.service"
 }
