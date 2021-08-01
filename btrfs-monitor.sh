@@ -5,20 +5,18 @@
 
 STATUS_CMD="/bin/btrfs device stats"
 
-status=$($STATUS_CMD "$1")
-status_exit=$?
-$status_exit || >&2 echo "Error: Can't get device status" || return $status_exit
+status=$($STATUS_CMD "$1") || >&2 echo "Error: Can't get device status"; exit 1
 
 if ! echo "$status" | grep -qvE '( 0$)|($)'
 then
 	echo "Error on $1"
 	echo "$status"
-	if [ -z "$MAILTO" ]
+	if [ -n "$MAILTO" ]
 	then
 		printf "%s\n" "Subject: Error on $1" "$status" | sendmail "$MAILTO"
-		return 0
+		exit 0
 	else
 		>&2 echo "Error: No email address given"
-		return 1
+		exit 1
 	fi
 fi
