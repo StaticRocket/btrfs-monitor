@@ -1,0 +1,7 @@
+[Unit]
+Description=Btrfs monitoring on %f
+ConditionPathIsMountPoint=%f
+RequiresMountsFor=%f
+
+[Service]
+ExecStart=/usr/bin/btrfs-monitor %f
