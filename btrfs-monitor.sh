@@ -5,16 +5,41 @@
 
 STATUS_CMD="/bin/btrfs device stats"
 
-status=$($STATUS_CMD "$1") || >&2 echo "Error: Can't get device status"; exit 1
+send_email() {
+	printf "%s\n" \
+		"Subject: $1" \
+		"MIME-Version: 1.0" \
+		"Content-Type: text/html" \
+		"Content-Disposition: inline" \
+		"<html>" \
+		"<body>" \
+		"<pre style="font: monospace">" \
+		"$(date)" \
+		"$2" \
+		"</pre>" \
+		"</body>" \
+		"</html>" \
+		| sendmail "$MAILTO"
+}
 
-if ! echo "$status" | grep -qvE '( 0$)|($)'
-then
-	echo "Error on $1"
-	echo "$status"
-	if [ -n "$MAILTO" ]
-	then
-		printf "%s\n" "Subject: Error on $1" "$status" | sendmail "$MAILTO"
-		exit 0
+status=$($STATUS_CMD "$1")
+if [ $? -ne 0 ]; then
+	echo "Error: Can't get device status"
+	exit 1
+fi
+
+echo "$status" | grep -qE '\s[^0]$'
+error_found=$?
+
+message="Status report for $1"
+[ $error_found -eq 0 ] && message="Error found on $1"
+echo "$message"
+echo "$status"
+
+if [ $error_found -eq 0 ] || [ "$ALWAYS_NOTIFY" == "true" ]; then
+	if [ -n "$MAILTO" ]; then
+		echo "Sending email to $MAILTO"
+		send_email "$message" "$status"
 	else
 		>&2 echo "Error: No email address given"
 		exit 1

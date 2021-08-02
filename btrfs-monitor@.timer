@@ -1,5 +1,5 @@
 [Unit]
-Description=Hourly monitoring of btrfs mount at %f
+Description=Hourly Btrfs monitoring on %f
 
 [Timer]
 OnCalendar=hourly
